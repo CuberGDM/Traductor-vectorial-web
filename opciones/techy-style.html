@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Language Translator</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --dark-bg: #0a0e27;
+            --dark-secondary: #1a1f3a;
+            --neon-cyan: #00d9ff;
+            --neon-purple: #c933ff;
+            --text-white: #f0f0f0;
+            --text-dim: #b0b0b0;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, var(--dark-bg) 0%, #1a1f3a 100%);
+            color: var(--text-white);
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        /* Particles Background */
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .particle {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: var(--neon-cyan);
+            border-radius: 50%;
+            opacity: 0.3;
+            animation: float linear infinite;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(100vh) translateX(0);
+                opacity: 0;
+            }
+            10% {
+                opacity: 0.5;
+            }
+            90% {
+                opacity: 0.5;
+            }
+            100% {
+                transform: translateY(-100vh) translateX(100px);
+                opacity: 0;
+            }
+        }
+
+        /* Loading Screen */
+        .loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--dark-bg);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            animation: fadeOutLoading 0.6s ease-out 2.4s forwards;
+        }
+
+        .loading-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 30px;
+        }
+
+        .hand-outline {
+            width: 80px;
+            height: 80px;
+            border: 3px solid var(--neon-cyan);
+            border-radius: 15px;
+            position: relative;
+            animation: glowPulse 2s ease-in-out infinite;
+        }
+
+        @keyframes glowPulse {
+            0%, 100% {
+                box-shadow: 0 0 10px var(--neon-cyan), inset 0 0 10px rgba(0, 217, 255, 0.3);
+            }
+            50% {
+                box-shadow: 0 0 30px var(--neon-cyan), inset 0 0 20px rgba(0, 217, 255, 0.5);
+            }
+        }
+
+        .loading-text {
+            color: var(--neon-cyan);
+            font-size: 18px;
+            font-weight: 300;
+            letter-spacing: 3px;
+            animation: blink 1.5s ease-in-out infinite;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; }
+        }
+
+        @keyframes fadeOutLoading {
+            to {
+                opacity: 0;
+                visibility: hidden;
+            }
+        }
+
+        /* Main Content */
+        .container {
+            position: relative;
+            z-index: 2;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .content {
+            text-align: center;
+            max-width: 600px;
+            width: 100%;
+            animation: slideInContent 0.8s ease-out;
+        }
+
+        @keyframes slideInContent {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .title {
+            font-size: clamp(2.5rem, 8vw, 4rem);
+            font-weight: 700;
+            margin-bottom: 15px;
+            background: linear-gradient(135deg, var(--text-white), var(--neon-cyan));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -1px;
+        }
+
+        .subtitle {
+            font-size: clamp(1rem, 3vw, 1.2rem);
+            color: var(--text-dim);
+            margin-bottom: 40px;
+            font-weight: 300;
+            line-height: 1.6;
+        }
+
+        .glass-card {
+            background: rgba(26, 31, 58, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(0, 217, 255, 0.2);
+            border-radius: 20px;
+            padding: clamp(30px, 5vw, 50px);
+            animation: slideInCard 0.8s ease-out 0.2s backwards;
+        }
+
+        @keyframes slideInCard {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .buttons-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+        }
+
+        @media (min-width: 600px) {
+            .buttons-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        @media (min-width: 900px) {
+            .buttons-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        .btn {
+            padding: 16px 28px;
+            border: 2px solid var(--neon-cyan);
+            background: transparent;
+            color: var(--neon-cyan);
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            font-family: 'Poppins', sans-serif;
+            text-decoration: none;
+            display: inline-block;
+            width: 100%;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: var(--neon-cyan);
+            z-index: -1;
+            transition: left 0.3s ease;
+        }
+
+        .btn:hover {
+            color: var(--dark-bg);
+            box-shadow: 0 0 20px var(--neon-cyan), inset 0 0 20px rgba(0, 217, 255, 0.2);
+            transform: scale(1.05);
+        }
+
+        .btn:hover::before {
+            left: 0;
+        }
+
+        .btn-github {
+            border-color: var(--neon-purple);
+            color: var(--neon-purple);
+        }
+
+        .btn-github::before {
+            background: var(--neon-purple);
+        }
+
+        .btn-github:hover {
+            color: var(--dark-bg);
+            box-shadow: 0 0 20px var(--neon-purple), inset 0 0 20px rgba(201, 51, 255, 0.2);
+        }
+
+        /* Footer */
+        .footer {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+            padding: 30px 20px;
+            color: var(--text-dim);
+            font-size: 14px;
+        }
+
+        /* Responsive */
+        @media (max-width: 480px) {
+            .title {
+                margin-bottom: 10px;
+            }
+
+            .glass-card {
+                padding: 25px 20px;
+            }
+
+            .btn {
+                padding: 14px 20px;
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="particles" id="particlesContainer"></div>
+
+    <div class="loading-screen" id="loadingScreen">
+        <div class="loading-content">
+            <div class="hand-outline"></div>
+            <div class="loading-text">INITIALIZING</div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="content">
+            <h1 class="title">Sign Language Translator</h1>
+            <p class="subtitle">Real-time translation powered by AI technology</p>
+
+            <div class="glass-card">
+                <div class="buttons-grid">
+                    <a href="#" class="btn">Download .EXE</a>
+                    <a href="#" class="btn">Download .APK</a>
+                    <a href="#" class="btn btn-github">GitHub</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <p>&copy; 2024 Sign Language Translator. All rights reserved.</p>
+    </footer>
+
+    <script>
+        // Generate particles
+        function createParticles() {
+            const container = document.getElementById('particlesContainer');
+            const particleCount = Math.min(50, Math.floor(window.innerWidth / 20));
+
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.animationDuration = (3 + Math.random() * 4) + 's';
+                particle.style.animationDelay = Math.random() * 2 + 's';
+                container.appendChild(particle);
+            }
+        }
+
+        createParticles();
+
+        // Recreate particles on resize
+        window.addEventListener('resize', () => {
+            document.getElementById('particlesContainer').innerHTML = '';
+            createParticles();
+        });
+
+        // Loading screen fade
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                document.getElementById('loadingScreen').style.opacity = '0';
+            }, 2400);
+        });
+    </script>
+</body>
+</html>
